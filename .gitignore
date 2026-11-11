@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Dados locais do app (clipboard do usuario) - nunca versionar
+data/
+*.log
+
+# Artefatos de build (PyInstaller)
+build/
+dist/
+*.spec
+
+# Notas internas de desenvolvimento (nao fazem parte do projeto publico)
+CONTEXT.md
+
+# IDE / SO
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
