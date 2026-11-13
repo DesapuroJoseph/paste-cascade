@@ -1,0 +1,468 @@
+date,amount,category,memo
+01/03/2026,$997.68,Moradia,Aluguel
+01/03/2026,$139.80,Restaurante,Delivery
+01/05/2026,$114.67,Mercado,Supermercado
+01/05/2026,"$1,321.41",Moradia,Conta de luz
+01/05/2026,"$1,354.92",Moradia,Conta de luz
+01/06/2026,"$1,312.49",Moradia,Condomínio
+01/06/2026,$338.31,Mercado,Supermercado
+01/06/2026,$64.21,Lazer,Show
+01/07/2026,$83.89,Restaurante,Almoço
+01/07/2026,$162.82,Lazer,Show
+01/09/2026,$37.21,Restaurante,Jantar fora
+01/09/2026,$231.74,Saúde,Exame
+01/09/2026,$72.30,Lazer,Viagem curta
+01/12/2026,$305.15,Saúde,Farmácia
+01/14/2026,$237.06,Saúde,Consulta
+01/14/2026,$111.44,Lazer,Cinema
+01/14/2026,"$1,086.88",Moradia,Conta de luz
+01/16/2026,"$1,223.58",Moradia,Aluguel
+01/17/2026,"$1,127.00",Moradia,Conta de luz
+01/17/2026,$384.07,Mercado,Supermercado
+01/18/2026,$179.78,Educação,Livros
+01/18/2026,$174.20,Lazer,Cinema
+01/19/2026,$30.60,Assinaturas,Streaming
+01/19/2026,"$1,292.96",Moradia,Conta de luz
+01/19/2026,$221.22,Saúde,Exame
+01/20/2026,$249.41,Lazer,Cinema
+01/20/2026,$48.47,Transporte,Metrô
+01/20/2026,$136.55,Mercado,Supermercado
+01/21/2026,$323.15,Educação,Curso online
+01/22/2026,$306.84,Saúde,Exame
+01/22/2026,$346.67,Mercado,Padaria
+01/22/2026,$145.45,Saúde,Exame
+01/23/2026,$354.18,Educação,Curso online
+01/23/2026,$276.21,Saúde,Exame
+01/25/2026,"$1,161.74",Moradia,Aluguel
+01/25/2026,$86.19,Transporte,Metrô
+01/27/2026,$24.47,Assinaturas,Streaming
+01/27/2026,$82.68,Lazer,Show
+01/28/2026,$138.45,Restaurante,Almoço
+01/30/2026,$46.97,Transporte,Metrô
+01/31/2026,$310.45,Saúde,Exame
+02/01/2026,"$1,428.69",Moradia,Conta de luz
+02/01/2026,"$1,118.20",Moradia,Conta de luz
+02/01/2026,$227.92,Lazer,Show
+02/02/2026,$59.83,Restaurante,Almoço
+02/02/2026,$159.43,Lazer,Cinema
+02/02/2026,"$1,054.15",Moradia,Conta de luz
+02/05/2026,$158.24,Restaurante,Almoço
+02/07/2026,$190.48,Saúde,Exame
+02/08/2026,$51.38,Assinaturas,Streaming
+02/09/2026,$967.85,Moradia,Aluguel
+02/09/2026,$340.61,Educação,Livros
+02/09/2026,$22.17,Assinaturas,Nuvem
+02/12/2026,$84.70,Lazer,Cinema
+02/12/2026,"$1,214.03",Moradia,Conta de luz
+02/12/2026,$275.35,Educação,Curso online
+02/13/2026,$150.24,Restaurante,Jantar fora
+02/18/2026,$47.82,Transporte,Combustível
+02/19/2026,$224.09,Educação,Curso online
+02/21/2026,$128.43,Saúde,Consulta
+02/21/2026,$27.60,Assinaturas,Streaming
+02/21/2026,"$1,305.43",Moradia,Aluguel
+02/23/2026,$296.15,Mercado,Supermercado
+02/23/2026,$86.78,Transporte,Uber
+02/25/2026,$35.53,Restaurante,Delivery
+02/26/2026,$573.72,Educação,Curso online
+02/27/2026,$110.33,Mercado,Padaria
+02/28/2026,$247.62,Saúde,Farmácia
+02/28/2026,$88.44,Lazer,Cinema
+03/01/2026,$138.01,Saúde,Consulta
+03/04/2026,$108.33,Restaurante,Almoço
+03/04/2026,$329.31,Saúde,Farmácia
+03/04/2026,$82.28,Restaurante,Almoço
+03/05/2026,$48.14,Assinaturas,Nuvem
+03/07/2026,$65.99,Restaurante,Almoço
+03/07/2026,$110.75,Restaurante,Delivery
+03/08/2026,$105.30,Saúde,Exame
+03/08/2026,$181.25,Lazer,Cinema
+03/09/2026,$56.21,Assinaturas,Música
+03/09/2026,$314.69,Mercado,Supermercado
+03/10/2026,$203.42,Mercado,Supermercado
+03/10/2026,$88.34,Transporte,Metrô
+03/11/2026,$48.23,Assinaturas,Nuvem
+03/15/2026,$295.53,Mercado,Hortifruti
+03/16/2026,$168.82,Educação,Curso online
+03/17/2026,$157.73,Mercado,Hortifruti
+03/17/2026,$971.96,Moradia,Conta de luz
+03/18/2026,$78.90,Transporte,Uber
+03/18/2026,$10.03,Transporte,Combustível
+03/18/2026,$206.49,Lazer,Show
+03/19/2026,$284.09,Saúde,Farmácia
+03/21/2026,$162.30,Mercado,Hortifruti
+03/21/2026,$32.21,Assinaturas,Música
+03/21/2026,$916.57,Moradia,Aluguel
+03/22/2026,$275.37,Educação,Livros
+03/24/2026,$142.07,Lazer,Viagem curta
+03/24/2026,$55.38,Lazer,Cinema
+03/25/2026,$86.93,Transporte,Metrô
+03/25/2026,$73.60,Saúde,Farmácia
+03/26/2026,$203.01,Lazer,Viagem curta
+03/26/2026,$323.34,Educação,Curso online
+03/26/2026,$931.07,Moradia,Condomínio
+03/27/2026,$422.46,Mercado,Padaria
+03/27/2026,"$1,201.91",Moradia,Condomínio
+03/27/2026,$99.06,Lazer,Viagem curta
+03/29/2026,$166.60,Saúde,Exame
+03/29/2026,$399.49,Educação,Livros
+03/30/2026,$454.79,Educação,Livros
+03/31/2026,$209.86,Saúde,Consulta
+04/02/2026,$173.27,Saúde,Farmácia
+04/02/2026,$127.19,Lazer,Show
+04/03/2026,$26.79,Assinaturas,Nuvem
+04/05/2026,$210.05,Lazer,Cinema
+04/05/2026,"$1,117.29",Moradia,Conta de luz
+04/06/2026,$11.79,Transporte,Uber
+04/07/2026,$89.24,Restaurante,Jantar fora
+04/07/2026,"$1,387.45",Moradia,Conta de luz
+04/07/2026,$29.76,Assinaturas,Música
+04/10/2026,"$1,462.88",Moradia,Aluguel
+04/10/2026,$42.30,Assinaturas,Streaming
+04/10/2026,$45.67,Restaurante,Jantar fora
+04/11/2026,$164.78,Lazer,Show
+04/11/2026,$553.74,Educação,Livros
+04/11/2026,$30.37,Assinaturas,Música
+04/12/2026,$190.23,Saúde,Exame
+04/13/2026,$64.02,Saúde,Consulta
+04/14/2026,"$1,135.09",Moradia,Condomínio
+04/14/2026,$48.38,Restaurante,Almoço
+04/15/2026,$25.54,Transporte,Metrô
+04/15/2026,$298.90,Educação,Livros
+04/15/2026,$22.49,Assinaturas,Música
+04/16/2026,$535.53,Educação,Curso online
+04/16/2026,$152.65,Educação,Livros
+04/16/2026,$195.76,Lazer,Show
+04/17/2026,"$1,053.60",Moradia,Condomínio
+04/17/2026,$163.06,Educação,Livros
+04/17/2026,$179.41,Lazer,Viagem curta
+04/18/2026,$83.40,Transporte,Combustível
+04/18/2026,$299.00,Mercado,Hortifruti
+04/18/2026,$317.82,Mercado,Supermercado
+04/19/2026,$22.01,Assinaturas,Streaming
+04/20/2026,$130.03,Lazer,Cinema
+04/20/2026,$91.22,Lazer,Show
+04/20/2026,$525.71,Educação,Livros
+04/21/2026,$279.59,Mercado,Padaria
+04/21/2026,$173.03,Lazer,Cinema
+04/21/2026,$431.36,Mercado,Supermercado
+04/22/2026,$136.38,Mercado,Padaria
+04/23/2026,$24.58,Assinaturas,Nuvem
+04/24/2026,$30.25,Assinaturas,Nuvem
+04/25/2026,$57.79,Transporte,Metrô
+04/25/2026,$174.53,Restaurante,Almoço
+04/28/2026,$573.66,Educação,Livros
+04/28/2026,"$1,314.47",Moradia,Aluguel
+04/29/2026,$144.73,Restaurante,Delivery
+05/02/2026,$181.03,Educação,Livros
+05/02/2026,$216.91,Lazer,Cinema
+05/03/2026,$173.92,Restaurante,Jantar fora
+05/03/2026,$26.12,Assinaturas,Nuvem
+05/03/2026,$50.78,Transporte,Metrô
+05/04/2026,$37.42,Assinaturas,Música
+05/04/2026,$304.03,Saúde,Consulta
+05/06/2026,$50.02,Assinaturas,Streaming
+05/06/2026,$162.91,Educação,Livros
+05/07/2026,$25.39,Transporte,Combustível
+05/07/2026,$126.69,Saúde,Consulta
+05/08/2026,$430.78,Mercado,Padaria
+05/08/2026,$136.61,Restaurante,Almoço
+05/09/2026,"$1,233.27",Moradia,Conta de luz
+05/09/2026,$51.72,Assinaturas,Música
+05/09/2026,$59.35,Restaurante,Jantar fora
+05/10/2026,$220.28,Saúde,Exame
+05/11/2026,$249.26,Lazer,Show
+05/11/2026,$184.63,Lazer,Show
+05/11/2026,$117.94,Saúde,Consulta
+05/13/2026,$193.43,Lazer,Cinema
+05/14/2026,"$1,417.02",Moradia,Aluguel
+05/15/2026,$298.11,Saúde,Farmácia
+05/15/2026,$151.87,Saúde,Farmácia
+05/16/2026,$277.63,Mercado,Padaria
+05/16/2026,$342.03,Saúde,Farmácia
+05/17/2026,$79.21,Transporte,Metrô
+05/17/2026,$54.91,Assinaturas,Streaming
+05/18/2026,$37.62,Assinaturas,Música
+05/18/2026,$28.70,Transporte,Uber
+05/19/2026,$87.11,Restaurante,Almoço
+05/19/2026,$122.56,Restaurante,Delivery
+05/19/2026,$135.20,Mercado,Supermercado
+05/20/2026,$43.36,Restaurante,Almoço
+05/20/2026,$499.06,Educação,Curso online
+05/21/2026,$31.89,Assinaturas,Música
+05/21/2026,$405.88,Educação,Livros
+05/21/2026,$435.24,Mercado,Padaria
+05/23/2026,"$1,362.30",Moradia,Condomínio
+05/24/2026,"$1,286.39",Moradia,Aluguel
+05/25/2026,$246.69,Mercado,Hortifruti
+05/26/2026,$111.76,Saúde,Farmácia
+05/26/2026,$306.48,Saúde,Exame
+05/26/2026,$61.18,Restaurante,Delivery
+05/27/2026,$980.34,Moradia,Condomínio
+05/27/2026,"$1,004.29",Moradia,Conta de luz
+05/28/2026,$12.89,Transporte,Uber
+05/28/2026,$272.18,Saúde,Exame
+05/29/2026,$38.75,Assinaturas,Streaming
+05/29/2026,$164.78,Saúde,Exame
+05/30/2026,$23.22,Assinaturas,Música
+05/30/2026,$351.78,Mercado,Hortifruti
+05/31/2026,$164.70,Mercado,Supermercado
+05/31/2026,$383.93,Mercado,Padaria
+06/02/2026,$46.06,Assinaturas,Nuvem
+06/03/2026,$43.74,Transporte,Metrô
+06/03/2026,$38.80,Assinaturas,Streaming
+06/04/2026,$177.43,Lazer,Show
+06/04/2026,$41.75,Transporte,Combustível
+06/04/2026,$46.50,Assinaturas,Música
+06/05/2026,$112.58,Mercado,Hortifruti
+06/05/2026,$75.94,Saúde,Consulta
+06/05/2026,$445.95,Educação,Curso online
+06/06/2026,$234.41,Educação,Curso online
+06/06/2026,$196.42,Lazer,Viagem curta
+06/06/2026,$28.14,Assinaturas,Streaming
+06/07/2026,$313.06,Saúde,Consulta
+06/08/2026,$175.84,Restaurante,Almoço
+06/08/2026,"$1,010.86",Moradia,Conta de luz
+06/08/2026,$230.96,Mercado,Padaria
+06/09/2026,$171.79,Restaurante,Jantar fora
+06/10/2026,$31.67,Assinaturas,Nuvem
+06/11/2026,$591.11,Educação,Livros
+06/11/2026,"$1,285.89",Moradia,Condomínio
+06/12/2026,"$1,255.77",Moradia,Conta de luz
+06/12/2026,$30.65,Transporte,Uber
+06/12/2026,$570.41,Educação,Livros
+06/13/2026,$348.64,Mercado,Hortifruti
+06/13/2026,$37.86,Assinaturas,Streaming
+06/14/2026,$151.42,Lazer,Show
+06/14/2026,$569.78,Educação,Livros
+06/14/2026,"$1,067.16",Moradia,Conta de luz
+06/15/2026,$930.55,Moradia,Condomínio
+06/15/2026,$56.54,Assinaturas,Nuvem
+06/15/2026,$594.79,Educação,Livros
+06/16/2026,$25.05,Assinaturas,Streaming
+06/17/2026,$40.46,Restaurante,Jantar fora
+06/17/2026,$48.90,Assinaturas,Streaming
+06/18/2026,$46.50,Transporte,Uber
+06/18/2026,$233.21,Saúde,Consulta
+06/18/2026,$533.29,Educação,Curso online
+06/19/2026,$188.12,Lazer,Viagem curta
+06/19/2026,$21.44,Assinaturas,Nuvem
+06/19/2026,$122.83,Restaurante,Almoço
+06/20/2026,$963.27,Moradia,Conta de luz
+06/20/2026,$134.10,Restaurante,Delivery
+06/22/2026,$32.56,Transporte,Metrô
+06/22/2026,$200.02,Mercado,Supermercado
+06/22/2026,$212.63,Mercado,Hortifruti
+06/23/2026,$51.56,Transporte,Uber
+06/23/2026,$22.36,Transporte,Uber
+06/23/2026,$373.95,Educação,Curso online
+06/24/2026,"$1,346.53",Moradia,Condomínio
+06/25/2026,$42.91,Saúde,Exame
+06/25/2026,$47.10,Assinaturas,Música
+06/25/2026,$44.22,Transporte,Uber
+06/26/2026,$338.23,Saúde,Exame
+06/26/2026,$302.04,Saúde,Consulta
+06/27/2026,$197.99,Educação,Livros
+06/28/2026,$95.09,Lazer,Viagem curta
+06/28/2026,$343.16,Saúde,Farmácia
+06/28/2026,$153.64,Educação,Livros
+06/30/2026,$228.19,Saúde,Farmácia
+06/30/2026,$170.06,Lazer,Cinema
+06/30/2026,$274.23,Saúde,Exame
+07/01/2026,$125.18,Restaurante,Delivery
+07/02/2026,$43.18,Assinaturas,Streaming
+07/02/2026,$82.59,Transporte,Uber
+07/03/2026,$240.36,Educação,Curso online
+07/03/2026,$140.39,Lazer,Viagem curta
+07/04/2026,$82.95,Transporte,Combustível
+07/04/2026,$49.86,Assinaturas,Música
+07/05/2026,$174.25,Restaurante,Jantar fora
+07/05/2026,$78.53,Transporte,Uber
+07/06/2026,$203.95,Lazer,Cinema
+07/06/2026,$278.53,Mercado,Hortifruti
+07/06/2026,$46.91,Assinaturas,Música
+07/07/2026,$198.76,Educação,Livros
+07/07/2026,$917.52,Moradia,Condomínio
+07/08/2026,$944.25,Moradia,Conta de luz
+07/08/2026,$32.09,Assinaturas,Nuvem
+07/09/2026,$32.03,Restaurante,Almoço
+07/09/2026,$448.49,Mercado,Hortifruti
+07/09/2026,$61.39,Restaurante,Almoço
+07/10/2026,$316.96,Educação,Livros
+07/11/2026,$61.70,Transporte,Combustível
+07/11/2026,$36.32,Assinaturas,Nuvem
+07/11/2026,$253.99,Saúde,Farmácia
+07/12/2026,$58.02,Assinaturas,Música
+07/13/2026,$81.94,Restaurante,Delivery
+07/13/2026,$117.59,Lazer,Cinema
+07/14/2026,$39.21,Restaurante,Jantar fora
+07/15/2026,$371.11,Mercado,Supermercado
+07/16/2026,$24.83,Transporte,Metrô
+07/17/2026,"$1,129.99",Moradia,Aluguel
+07/18/2026,$397.61,Mercado,Hortifruti
+07/19/2026,$28.55,Transporte,Metrô
+07/20/2026,$159.30,Restaurante,Delivery
+07/21/2026,$372.29,Mercado,Hortifruti
+07/22/2026,$68.33,Lazer,Cinema
+07/24/2026,$485.55,Educação,Curso online
+07/25/2026,$40.53,Assinaturas,Música
+07/25/2026,$103.09,Restaurante,Jantar fora
+07/25/2026,$369.79,Mercado,Padaria
+07/26/2026,$58.56,Assinaturas,Nuvem
+07/26/2026,$393.50,Mercado,Hortifruti
+07/27/2026,$135.42,Restaurante,Jantar fora
+07/27/2026,$55.97,Assinaturas,Streaming
+07/27/2026,$62.63,Lazer,Viagem curta
+07/28/2026,$236.25,Saúde,Exame
+07/29/2026,$354.17,Educação,Livros
+07/29/2026,$506.89,Educação,Curso online
+07/31/2026,$549.64,Educação,Livros
+08/01/2026,$117.72,Lazer,Show
+08/01/2026,$91.15,Restaurante,Jantar fora
+08/01/2026,$335.61,Saúde,Consulta
+08/02/2026,$153.92,Restaurante,Almoço
+08/02/2026,$39.97,Restaurante,Jantar fora
+08/02/2026,$152.40,Lazer,Cinema
+08/03/2026,$79.81,Restaurante,Jantar fora
+08/03/2026,$585.78,Educação,Curso online
+08/04/2026,$157.14,Lazer,Cinema
+08/04/2026,"$1,359.72",Moradia,Aluguel
+08/05/2026,$156.03,Restaurante,Jantar fora
+08/06/2026,$113.99,Restaurante,Jantar fora
+08/06/2026,$424.05,Educação,Curso online
+08/07/2026,$181.11,Mercado,Supermercado
+08/07/2026,$148.82,Saúde,Consulta
+08/08/2026,$61.90,Transporte,Metrô
+08/10/2026,$356.06,Mercado,Supermercado
+08/11/2026,$354.14,Educação,Livros
+08/12/2026,$188.75,Lazer,Show
+08/15/2026,$12.08,Transporte,Metrô
+08/17/2026,$36.96,Assinaturas,Nuvem
+08/17/2026,$30.93,Assinaturas,Música
+08/19/2026,$277.46,Educação,Curso online
+08/19/2026,$46.69,Assinaturas,Nuvem
+08/21/2026,$153.46,Educação,Curso online
+08/22/2026,"$1,434.91",Moradia,Aluguel
+08/22/2026,$77.20,Saúde,Consulta
+08/23/2026,$208.13,Educação,Curso online
+08/23/2026,"$1,291.11",Moradia,Conta de luz
+08/23/2026,$117.36,Lazer,Cinema
+08/25/2026,$420.83,Mercado,Hortifruti
+08/25/2026,$124.44,Lazer,Viagem curta
+08/25/2026,$280.28,Educação,Livros
+08/26/2026,$143.59,Mercado,Hortifruti
+08/26/2026,$56.79,Assinaturas,Nuvem
+08/26/2026,$155.90,Restaurante,Jantar fora
+08/27/2026,$385.78,Educação,Livros
+08/28/2026,$145.25,Saúde,Exame
+08/28/2026,$46.80,Lazer,Cinema
+08/28/2026,$104.04,Restaurante,Delivery
+08/29/2026,$240.81,Lazer,Viagem curta
+08/29/2026,$16.43,Transporte,Uber
+08/30/2026,"$1,321.68",Moradia,Aluguel
+08/30/2026,$172.45,Restaurante,Almoço
+08/31/2026,$50.40,Assinaturas,Nuvem
+08/31/2026,$56.97,Assinaturas,Nuvem
+08/31/2026,$99.55,Lazer,Viagem curta
+09/01/2026,$93.54,Restaurante,Jantar fora
+09/01/2026,$223.34,Saúde,Consulta
+09/01/2026,$46.32,Lazer,Viagem curta
+09/02/2026,$22.28,Assinaturas,Streaming
+09/02/2026,$239.85,Saúde,Farmácia
+09/02/2026,$117.08,Restaurante,Delivery
+09/03/2026,$42.17,Assinaturas,Nuvem
+09/03/2026,$416.35,Mercado,Hortifruti
+09/03/2026,"$1,323.50",Moradia,Condomínio
+09/04/2026,$118.30,Mercado,Hortifruti
+09/05/2026,$125.15,Restaurante,Delivery
+09/05/2026,$341.82,Mercado,Supermercado
+09/06/2026,$38.57,Transporte,Combustível
+09/06/2026,$166.72,Saúde,Consulta
+09/06/2026,$161.53,Lazer,Viagem curta
+09/07/2026,$39.65,Restaurante,Jantar fora
+09/07/2026,$263.40,Educação,Livros
+09/08/2026,$158.20,Lazer,Cinema
+09/09/2026,$242.89,Lazer,Show
+09/10/2026,$66.12,Transporte,Metrô
+09/10/2026,$111.63,Restaurante,Jantar fora
+09/10/2026,$177.43,Lazer,Cinema
+09/12/2026,$109.77,Lazer,Cinema
+09/12/2026,$36.02,Transporte,Uber
+09/12/2026,$29.06,Assinaturas,Streaming
+09/13/2026,$32.25,Transporte,Uber
+09/16/2026,$38.89,Transporte,Metrô
+09/16/2026,$76.17,Transporte,Uber
+09/17/2026,$36.43,Assinaturas,Streaming
+09/18/2026,$31.40,Assinaturas,Nuvem
+09/19/2026,"$1,067.42",Moradia,Conta de luz
+09/19/2026,$34.71,Assinaturas,Streaming
+09/19/2026,$50.78,Assinaturas,Música
+09/20/2026,$517.60,Educação,Curso online
+09/20/2026,$12.28,Transporte,Combustível
+09/20/2026,$42.18,Assinaturas,Música
+09/23/2026,$67.28,Restaurante,Almoço
+09/23/2026,$15.52,Transporte,Combustível
+09/24/2026,$57.22,Assinaturas,Música
+09/25/2026,$265.74,Mercado,Hortifruti
+09/25/2026,"$1,596.17",Moradia,Condomínio
+09/25/2026,$36.20,Lazer,Cinema
+09/27/2026,$11.14,Transporte,Uber
+09/27/2026,$53.24,Assinaturas,Nuvem
+09/28/2026,$20.21,Assinaturas,Nuvem
+09/28/2026,$64.67,Restaurante,Almoço
+09/28/2026,$85.10,Transporte,Metrô
+09/29/2026,$61.83,Restaurante,Jantar fora
+09/29/2026,$61.96,Restaurante,Almoço
+09/29/2026,$24.43,Assinaturas,Streaming
+09/30/2026,$270.69,Mercado,Padaria
+09/30/2026,"$1,000.50",Moradia,Conta de luz
+09/30/2026,$426.66,Educação,Curso online
+10/01/2026,$448.97,Educação,Curso online
+10/03/2026,$109.33,Restaurante,Delivery
+10/03/2026,$403.13,Mercado,Hortifruti
+10/05/2026,$194.41,Lazer,Show
+10/05/2026,$105.86,Lazer,Cinema
+10/05/2026,$138.95,Restaurante,Delivery
+10/06/2026,$36.89,Transporte,Uber
+10/06/2026,$68.52,Lazer,Viagem curta
+10/07/2026,$27.29,Assinaturas,Nuvem
+10/07/2026,$66.72,Transporte,Uber
+10/07/2026,$31.74,Assinaturas,Streaming
+10/09/2026,$425.35,Mercado,Hortifruti
+10/10/2026,$21.46,Assinaturas,Música
+10/10/2026,"$1,149.88",Moradia,Condomínio
+10/10/2026,$202.81,Mercado,Padaria
+10/12/2026,$484.49,Educação,Livros
+10/12/2026,$588.18,Educação,Livros
+10/13/2026,$56.97,Assinaturas,Música
+10/13/2026,$265.40,Saúde,Farmácia
+10/13/2026,$118.38,Restaurante,Jantar fora
+10/14/2026,$71.81,Saúde,Consulta
+10/15/2026,$178.23,Saúde,Consulta
+10/15/2026,$460.39,Educação,Curso online
+10/16/2026,$49.07,Assinaturas,Streaming
+10/16/2026,$249.59,Lazer,Viagem curta
+10/17/2026,$328.34,Mercado,Supermercado
+10/17/2026,$380.89,Educação,Livros
+10/18/2026,$394.01,Mercado,Supermercado
+10/19/2026,$104.88,Mercado,Supermercado
+10/19/2026,$114.23,Lazer,Show
+10/19/2026,$136.77,Mercado,Padaria
+10/20/2026,$127.67,Lazer,Show
+10/20/2026,$46.34,Restaurante,Delivery
+10/20/2026,$99.16,Lazer,Show
+10/21/2026,$918.14,Moradia,Aluguel
+10/21/2026,$50.46,Transporte,Combustível
+10/23/2026,$178.34,Saúde,Exame
+10/23/2026,$324.11,Saúde,Exame
+10/24/2026,$995.01,Moradia,Aluguel
+10/24/2026,$51.76,Restaurante,Jantar fora
+10/24/2026,$52.42,Assinaturas,Streaming
+10/25/2026,$44.29,Lazer,Viagem curta
+10/25/2026,$303.92,Saúde,Consulta
+10/26/2026,$79.33,Lazer,Viagem curta
+10/27/2026,$72.81,Transporte,Uber
+10/29/2026,$206.81,Lazer,Show
+10/29/2026,$80.51,Transporte,Metrô
+10/31/2026,$386.56,Educação,Livros
+10/31/2026,$206.40,Educação,Curso online
