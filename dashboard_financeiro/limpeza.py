@@ -25,36 +25,68 @@ def listar_abas(conteudo: bytes) -> list[str]:
 
 
 def ler_arquivo(conteudo: bytes, nome: str, aba: str | int = 0, linha_cabecalho: int = 0) -> pd.DataFrame:
-    """Lê .csv ou .xlsx em um DataFrame com todas as colunas como texto/objeto.
+    """Lê .csv ou .xlsx usando a linha `linha_cabecalho` (0 = primeira) como títulos das colunas.
 
-    - CSV: detecta separador (; , tab |) e codificação automaticamente.
-    - linha_cabecalho: índice (0 = primeira linha) da linha que contém os títulos.
+    - CSV: separador (; , tab |) e codificação detectados; linhas com nº de campos diferente
+      (títulos no topo, totais no fim) não quebram a leitura.
+    - XLSX: números e datas continuam com o tipo original do Excel.
     """
-    nome = nome.lower()
-    if nome.endswith((".xlsx", ".xlsm", ".xls")):
-        df = pd.read_excel(io.BytesIO(conteudo), sheet_name=aba, header=linha_cabecalho, engine="openpyxl")
-    elif nome.endswith((".csv", ".txt")):
-        df = None
-        ultimo_erro: Exception | None = None
-        for enc in _ENCODINGS:
-            try:
-                df = pd.read_csv(
-                    io.BytesIO(conteudo),
-                    sep=None,
-                    engine="python",
-                    encoding=enc,
-                    header=linha_cabecalho,
-                    dtype=str,
-                    skip_blank_lines=True,
-                )
-                break
-            except (UnicodeDecodeError, pd.errors.ParserError, ValueError) as e:
-                ultimo_erro = e
-        if df is None:
-            raise ValueError(f"Não foi possível ler o CSV: {ultimo_erro}")
-    else:
-        raise ValueError("Formato não suportado. Envie um arquivo .xlsx ou .csv.")
+    return com_cabecalho(ler_cru(conteudo, nome, aba), linha_cabecalho)
 
+
+def eh_excel(nome: str) -> bool:
+    return nome.lower().endswith((".xlsx", ".xlsm", ".xls"))
+
+
+def ler_cru(conteudo: bytes, nome: str, aba: str | int = 0) -> pd.DataFrame:
+    """Lê a planilha inteira sem cabeçalho (todas as linhas como dados)."""
+    if eh_excel(nome):
+        return pd.read_excel(io.BytesIO(conteudo), sheet_name=aba, header=None, engine="openpyxl")
+    if not nome.lower().endswith((".csv", ".txt")):
+        raise ValueError("Formato não suportado. Envie um arquivo .xlsx ou .csv.")
+    texto = None
+    for enc in _ENCODINGS:
+        try:
+            texto = conteudo.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    if texto is None:
+        raise ValueError("Não foi possível decodificar o CSV.")
+    linhas = [l for l in texto.splitlines()]
+    amostra = [l for l in linhas if l.strip()][:50]
+    # separador = o que aparece de forma mais consistente (mesma contagem) nas linhas
+    def consistencia(sep: str) -> tuple[int, int]:
+        contagens = [l.count(sep) for l in amostra if l.count(sep) > 0]
+        if not contagens:
+            return (0, 0)
+        moda = max(set(contagens), key=contagens.count)
+        return (contagens.count(moda), moda)
+    sep = max([";", ",", "\t", "|"], key=consistencia)
+    import csv
+    registros = list(csv.reader(linhas, delimiter=sep))
+    largura = max((len(r) for r in registros), default=0)
+    registros = [r + [""] * (largura - len(r)) for r in registros]
+    df = pd.DataFrame(registros, dtype=object)
+    return df.replace(r"^\s*$", np.nan, regex=True)
+
+
+def _texto_cabecalho(x) -> str:
+    if x is None or (isinstance(x, float) and np.isnan(x)):
+        return ""
+    if isinstance(x, (pd.Timestamp,)) or hasattr(x, "year"):
+        return pd.Timestamp(x).strftime("%Y-%m")  # cabeçalho de mês salvo como data no Excel
+    if isinstance(x, float) and x.is_integer():
+        return str(int(x))
+    return str(x).strip()
+
+
+def com_cabecalho(cru: pd.DataFrame, linha: int) -> pd.DataFrame:
+    """Usa a linha `linha` do DataFrame cru como títulos e devolve as linhas abaixo dela."""
+    if cru.empty or linha >= len(cru):
+        return pd.DataFrame()
+    df = cru.iloc[linha + 1:].copy()
+    df.columns = [_texto_cabecalho(c) for c in cru.iloc[linha]]
     return normalizar_cabecalhos(df)
 
 
@@ -359,53 +391,144 @@ def preparar_dados(
 
 
 # ---------------------------------------------------------------------------
-# Detecção automática completa (aba, linha do cabeçalho e colunas)
+# Formato "grade mensal": itens nas linhas, meses nas colunas
 # ---------------------------------------------------------------------------
+
+_MES_NUM = {
+    "jan": 1, "fev": 2, "feb": 2, "mar": 3, "abr": 4, "apr": 4, "mai": 5, "may": 5, "jun": 6,
+    "jul": 7, "ago": 8, "aug": 8, "set": 9, "sep": 9, "out": 10, "oct": 10, "nov": 11, "dez": 12, "dec": 12,
+}
+_RE_MES_NOME = re.compile(r"^([a-z]{3})[a-z]*\.?\s*(?:(?:de\s+|[/\-\s'])\s*(\d{2,4}))?$")
+_RE_MES_NUM = re.compile(r"^(?:(\d{1,2})[/\-](\d{2}|\d{4})|(\d{4})[/\-](\d{1,2}))$")
+_RE_ANO = re.compile(r"\b(20\d{2}|19\d{2})\b")
+_RE_RECEITA = re.compile(r"receita|entrada|renda\b|salario|rendimento|ganho|provento|recebid")
+_RE_TOTAL = re.compile(r"\b(sub)?total|soma\b|saldo|resultado|media\b|balanco")
+
+
+def _ano(a: str | None) -> int | None:
+    if not a:
+        return None
+    a = int(a)
+    return a + 2000 if a < 100 else a
+
+
+def interpretar_mes(titulo: str) -> tuple[int, int | None] | None:
+    """'Janeiro', 'jan/26', 'Fev 2026', '01/2026', '2026-03' -> (mês, ano ou None)."""
+    t = _sem_acento(str(titulo)).strip()
+    m = _RE_MES_NOME.match(t)
+    if m and m.group(1) in _MES_NUM:
+        return _MES_NUM[m.group(1)], _ano(m.group(2))
+    m = _RE_MES_NUM.match(t)
+    if m:
+        mes, ano = (m.group(1), m.group(2)) if m.group(1) else (m.group(4), m.group(3))
+        if 1 <= int(mes) <= 12:
+            return int(mes), _ano(ano)
+    return None
+
+
+def _vazio(x) -> bool:
+    return x is None or (isinstance(x, float) and np.isnan(x)) or (isinstance(x, str) and not x.strip())
+
+
+def converter_mensal(df: pd.DataFrame, ano_padrao: int) -> pd.DataFrame | None:
+    """Transforma uma grade mensal em lista de lançamentos (Data, Valor, Categoria, Descrição).
+
+    - Linhas só com texto (ex.: "MORADIA") viram a categoria das linhas abaixo.
+    - Linhas de total/subtotal/saldo e de receitas/entradas são ignoradas.
+    Retorna None se a tabela não tiver pelo menos 2 colunas de mês.
+    """
+    meses = {c: interpretar_mes(c) for c in df.columns}
+    meses = {c: v for c, v in meses.items() if v}
+    if len(meses) < 2:
+        return None
+    rotulos = [c for c in df.columns if c not in meses and not _RE_TOTAL.search(_sem_acento(c))]
+    # colunas de rótulo = as que têm texto (não números) nas linhas
+    rotulos = [c for c in rotulos
+               if df[c].dropna().map(lambda x: isinstance(x, str) and not _celula_e_dado(x)).mean() > 0.5]
+    if not rotulos:
+        return None
+    unicos = {c: df[c].dropna().nunique() for c in rotulos}
+    desc_col = max(rotulos, key=lambda c: unicos[c])
+    cat_col = next((c for c in rotulos if c != desc_col and unicos[c] < unicos[desc_col]), None)
+
+    registros = []
+    secao = None
+    em_receitas = False
+    for _, linha in df.iterrows():
+        valores = [linha[c] for c in meses]
+        rotulo = next((str(linha[c]).strip() for c in [desc_col] + rotulos if not _vazio(linha[c])), "")
+        if not rotulo and all(_vazio(v) for v in valores):
+            continue
+        rot_norm = _sem_acento(rotulo)
+        if all(_vazio(v) for v in valores):  # linha de seção
+            secao = rotulo
+            em_receitas = bool(_RE_RECEITA.search(rot_norm))
+            if re.search(r"despesa|gasto|saida|custo", rot_norm):
+                em_receitas = False
+            continue
+        if _RE_TOTAL.search(rot_norm):
+            continue
+        categoria = str(linha[cat_col]).strip() if cat_col and not _vazio(linha[cat_col]) else (secao or rotulo)
+        cat_norm = _sem_acento(categoria)
+        if em_receitas or _RE_RECEITA.search(cat_norm) or _RE_RECEITA.search(rot_norm):
+            continue
+        for c, (mes, ano) in meses.items():
+            v = linha[c]
+            if _vazio(v):
+                continue
+            registros.append({
+                "Data": pd.Timestamp(year=ano or ano_padrao, month=mes, day=1),
+                "Valor": v,
+                "Categoria": categoria,
+                "Descrição": rotulo,
+            })
+    if not registros:
+        return None
+    return pd.DataFrame(registros)
+
+
+def _ano_do_contexto(cru: pd.DataFrame, *textos: str) -> int:
+    for t in textos:
+        m = _RE_ANO.search(str(t))
+        if m:
+            return int(m.group(1))
+    topo = " ".join(str(x) for x in cru.head(10).to_numpy().ravel() if isinstance(x, str))
+    m = _RE_ANO.search(topo)
+    return int(m.group(1)) if m else pd.Timestamp.today().year
+
+
+# ---------------------------------------------------------------------------
+# Detecção automática completa (aba, linha do cabeçalho, formato e colunas)
+# ---------------------------------------------------------------------------
+
+FORMATO_LISTA = "lista"
+FORMATO_MENSAL = "mensal"
+
 
 def _celula_e_dado(x) -> bool:
     """True se a célula parece um dado (número ou data), e não um título de coluna."""
-    if x is None or (isinstance(x, float) and np.isnan(x)):
+    if _vazio(x):
         return False
     if isinstance(x, (int, float, np.integer, np.floating, pd.Timestamp)) or hasattr(x, "year"):
         return True
-    t = str(x).strip()
-    if not t:
-        return False
-    s = pd.Series([t])
+    s = pd.Series([str(x).strip()])
     return bool(limpar_valor(s).notna().iloc[0] or limpar_data(s).notna().iloc[0])
 
 
-def detectar_linha_cabecalho(bruto_sem_cabecalho: pd.DataFrame, max_linhas: int = 30) -> int:
-    """Encontra a linha dos títulos: a primeira linha "cheia" só de textos,
-    seguida de uma linha que contém números/datas. Pula títulos e linhas vazias no topo."""
-    topo = bruto_sem_cabecalho.head(max_linhas)
-    if topo.empty:
-        return 0
-    preenchidas = topo.notna().sum(axis=1)
-    largura = preenchidas.max()
-    for pos in range(len(topo) - 1):
-        linha = topo.iloc[pos]
-        celulas = [c for c in linha if not (c is None or (isinstance(c, float) and np.isnan(c))) and str(c).strip()]
-        if len(celulas) < 2 or len(celulas) < 0.6 * largura:
+def linhas_candidatas(cru: pd.DataFrame, max_linhas: int = 30, max_candidatas: int = 12) -> list[int]:
+    """Linhas do topo que parecem títulos: ≥2 células preenchidas, em sua maioria texto."""
+    candidatas = []
+    for pos in range(min(max_linhas, len(cru))):
+        celulas = [c for c in cru.iloc[pos] if not _vazio(c)]
+        if len(celulas) < 2:
             continue
-        if any(_celula_e_dado(c) for c in celulas):
-            continue
-        seguinte = topo.iloc[pos + 1]
-        if any(_celula_e_dado(c) for c in seguinte):
-            return pos
-    return 0
-
-
-def _ler_sem_cabecalho(conteudo: bytes, nome: str, aba) -> pd.DataFrame:
-    if nome.lower().endswith((".xlsx", ".xlsm", ".xls")):
-        return pd.read_excel(io.BytesIO(conteudo), sheet_name=aba, header=None, engine="openpyxl", nrows=40)
-    for enc in _ENCODINGS:
-        try:
-            return pd.read_csv(io.BytesIO(conteudo), sep=None, engine="python", encoding=enc,
-                               header=None, dtype=str, nrows=40, skip_blank_lines=False)
-        except (UnicodeDecodeError, pd.errors.ParserError, ValueError):
-            continue
-    return pd.DataFrame()
+        texto = sum(1 for c in celulas if isinstance(c, str) and (interpretar_mes(c) or not _celula_e_dado(c)))
+        datas_mes = sum(1 for c in celulas if hasattr(c, "year"))  # meses salvos como data
+        if (texto + datas_mes) / len(celulas) >= 0.6:
+            candidatas.append(pos)
+        if len(candidatas) >= max_candidatas:
+            break
+    return candidatas or [0]
 
 
 def sugerir_mapeamento(df: pd.DataFrame) -> dict[str, str | None]:
@@ -417,26 +540,50 @@ def sugerir_mapeamento(df: pd.DataFrame) -> dict[str, str | None]:
     return {"data": data, "valor": valor, "categoria": cat, "descricao": desc}
 
 
-def detectar_tudo(conteudo: bytes, nome: str) -> dict:
-    """Testa cada aba, acha o cabeçalho e as colunas; fica com a aba que gera mais linhas válidas.
+def montar_tabela(cru: pd.DataFrame, linha: int, formato: str, ano_padrao: int) -> pd.DataFrame:
+    """Tabela pronta para o mapeamento, no formato de lista de lançamentos."""
+    df = com_cabecalho(cru, linha)
+    if formato == FORMATO_MENSAL:
+        convertida = converter_mensal(df, ano_padrao)
+        return convertida if convertida is not None else pd.DataFrame()
+    return df
 
-    Retorna {"aba", "linha_cabecalho", "mapa", "linhas_validas"}.
+
+def _linhas_validas(df: pd.DataFrame, mapa: dict) -> int:
+    if df.empty or not (mapa.get("data") and mapa.get("valor")):
+        return 0
+    ok, _ = preparar_dados(df, mapa["data"], mapa["valor"], mapa["categoria"], mapa["descricao"])
+    return len(ok)
+
+
+def detectar_tudo(conteudo: bytes, nome: str) -> dict:
+    """Testa cada aba × linhas candidatas a cabeçalho × formato (lista ou grade mensal)
+    e fica com a combinação que produz mais lançamentos válidos.
+
+    Retorna {"aba", "linha_cabecalho", "formato", "ano", "mapa", "linhas_validas"}.
     """
-    abas = listar_abas(conteudo) if nome.lower().endswith((".xlsx", ".xlsm", ".xls")) else [0]
-    melhor = {"aba": abas[0], "linha_cabecalho": 0, "mapa": {}, "linhas_validas": -1}
+    abas = listar_abas(conteudo) if eh_excel(nome) else [0]
+    melhor = {"aba": abas[0], "linha_cabecalho": 0, "formato": FORMATO_LISTA,
+              "ano": pd.Timestamp.today().year, "mapa": {}, "linhas_validas": -1}
     for aba in abas:
         try:
-            linha = detectar_linha_cabecalho(_ler_sem_cabecalho(conteudo, nome, aba))
-            df = ler_arquivo(conteudo, nome, aba, linha)
-            if df.empty or len(df.columns) < 2:
-                continue
-            mapa = sugerir_mapeamento(df)
-            validas = 0
-            if mapa["data"] and mapa["valor"]:
-                ok, _ = preparar_dados(df, mapa["data"], mapa["valor"], mapa["categoria"], mapa["descricao"])
-                validas = len(ok)
+            cru = ler_cru(conteudo, nome, aba)
         except Exception:
             continue
-        if validas > melhor["linhas_validas"]:
-            melhor = {"aba": aba, "linha_cabecalho": linha, "mapa": mapa, "linhas_validas": validas}
+        if cru.empty:
+            continue
+        ano = _ano_do_contexto(cru, aba if isinstance(aba, str) else "", nome)
+        for linha in linhas_candidatas(cru):
+            for formato in (FORMATO_LISTA, FORMATO_MENSAL):
+                try:
+                    df = montar_tabela(cru, linha, formato, ano)
+                    if df.empty or len(df.columns) < 2:
+                        continue
+                    mapa = sugerir_mapeamento(df)
+                    validas = _linhas_validas(df, mapa)
+                except Exception:
+                    continue
+                if validas > melhor["linhas_validas"]:
+                    melhor = {"aba": aba, "linha_cabecalho": linha, "formato": formato, "ano": ano,
+                              "mapa": mapa, "linhas_validas": validas}
     return melhor

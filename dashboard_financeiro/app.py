@@ -52,8 +52,8 @@ def estilizar(fig: go.Figure, altura: int = 420) -> go.Figure:
 
 
 @st.cache_data(show_spinner="Lendo arquivo…")
-def carregar(conteudo: bytes, nome: str, aba, linha_cabecalho: int) -> pd.DataFrame:
-    return lp.ler_arquivo(conteudo, nome, aba, linha_cabecalho)
+def carregar(conteudo: bytes, nome: str, aba, linha_cabecalho: int, formato_tabela: str, ano: int) -> pd.DataFrame:
+    return lp.montar_tabela(lp.ler_cru(conteudo, nome, aba), linha_cabecalho, formato_tabela, ano)
 
 
 
@@ -117,19 +117,32 @@ with ajustes:
         "Linha onde estão os títulos das colunas", min_value=1, max_value=200,
         value=int(auto["linha_cabecalho"]) + 1 if aba == auto["aba"] else 1,
     ) - 1
+    _rotulos_layout = {
+        lp.FORMATO_LISTA: "Lista de lançamentos (uma linha por gasto, com coluna de data)",
+        lp.FORMATO_MENSAL: "Grade mensal (itens nas linhas, meses nas colunas)",
+    }
+    _opcoes_layout = list(_rotulos_layout)
+    formato_tabela = st.radio(
+        "Como a planilha está organizada?", _opcoes_layout,
+        index=_opcoes_layout.index(auto.get("formato", lp.FORMATO_LISTA)),
+        format_func=_rotulos_layout.get, horizontal=True,
+    )
 
 try:
-    bruto = carregar(conteudo, arquivo.name, aba, int(linha_cab))
+    bruto = carregar(conteudo, arquivo.name, aba, int(linha_cab), formato_tabela, int(auto.get("ano", 2026)))
 except Exception as e:
     st.error(f"Erro ao ler o arquivo: {e}")
     st.stop()
 
 if bruto.empty or len(bruto.columns) < 2:
-    st.warning("Essa aba parece vazia. Escolha outra aba ou outra linha de títulos em ⚙️ acima.")
+    st.warning("Não encontrei uma tabela de gastos com essas opções. Abra ⚙️ acima e tente outra aba, "
+               "outra linha de títulos ou outra organização da planilha.")
+    with st.expander("Ver as primeiras linhas do arquivo", expanded=True):
+        st.dataframe(lp.ler_cru(conteudo, arquivo.name, aba).head(30).astype(str), width="stretch")
     st.stop()
 
 colunas = list(bruto.columns)
-if aba != auto["aba"] or int(linha_cab) != auto["linha_cabecalho"]:
+if aba != auto["aba"] or int(linha_cab) != auto["linha_cabecalho"] or formato_tabela != auto.get("formato"):
     mapa = lp.sugerir_mapeamento(bruto)  # usuário mudou a aba/linha: re-detecta
 opcoes_opc = [NENHUMA] + colunas
 
@@ -179,17 +192,25 @@ if dados.empty:
         "Não encontrei gastos válidos com as colunas escolhidas. Abra o painel ⚙️ abaixo e indique "
         "qual coluna tem as **datas** e qual tem os **valores**."
     )
-    with st.expander("Ver as primeiras linhas do arquivo"):
-        st.dataframe(bruto.head(30), width="stretch")
+    with st.expander("Ver as primeiras linhas do arquivo", expanded=True):
+        st.dataframe(lp.ler_cru(conteudo, arquivo.name, aba).head(30).astype(str), width="stretch")
     st.stop()
 
+mensal = formato_tabela == lp.FORMATO_MENSAL
 _partes = [f"📅 **{col_data}**", f"💵 **{col_valor}**"]
 if col_cat != NENHUMA:
     _partes.append(f"🏷️ **{col_cat}**")
 if col_desc != NENHUMA:
     _partes.append(f"📝 **{col_desc}**")
 _extra = " Entradas (valores do lado oposto) foram ignoradas." if _misto and regra_sinal != lp.SINAL_ABSOLUTO else ""
-resumo_slot.success(f"✅ Planilha lida automaticamente: {' · '.join(_partes)}.{_extra}")
+if mensal:
+    resumo_slot.success(
+        f"✅ Planilha lida automaticamente como **grade mensal**: {dados['Data'].dt.to_period('M').nunique()} meses, "
+        f"{dados['Descrição'].nunique()} itens, {dados['Categoria'].nunique()} categorias. "
+        "Linhas de total, saldo e receitas foram ignoradas."
+    )
+else:
+    resumo_slot.success(f"✅ Planilha lida automaticamente: {' · '.join(_partes)}.{_extra}")
 
 
 # ---------------------------------------------------------------------------
@@ -198,6 +219,8 @@ resumo_slot.success(f"✅ Planilha lida automaticamente: {' · '.join(_partes)}.
 with st.sidebar:
     st.header("🔎 Filtros")
     dmin, dmax = dados["Data"].min().date(), dados["Data"].max().date()
+    if mensal:  # cada valor representa o mês inteiro
+        dmax = (dados["Data"].max() + pd.offsets.MonthEnd(0)).date()
     periodo = st.date_input("Período", value=(dmin, dmax), min_value=dmin, max_value=dmax, format="DD/MM/YYYY")
     categorias = sorted(dados["Categoria"].unique())
     cats_sel = st.multiselect("Categorias", categorias, placeholder="Todas")
@@ -267,7 +290,10 @@ with c_esq:
 # ---------------------------------------------------------------------------
 with c_dir:
     st.subheader("Tendência de gastos no tempo")
-    granularidade = st.radio("Agrupar por", ["Dia", "Semana", "Mês"], index=2 if dias > 92 else (1 if dias > 31 else 0), horizontal=True)
+    if mensal:  # a planilha só tem valores por mês
+        granularidade = "Mês"
+    else:
+        granularidade = st.radio("Agrupar por", ["Dia", "Semana", "Mês"], index=2 if dias > 92 else (1 if dias > 31 else 0), horizontal=True)
     freq = {"Dia": "D", "Semana": "W-MON", "Mês": "MS"}[granularidade]
     serie = df.set_index("Data")["Valor"].resample(freq, label="left", closed="left").sum().reset_index()
     janela = {"Dia": 7, "Semana": 4, "Mês": 3}[granularidade]

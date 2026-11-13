@@ -128,3 +128,27 @@ def test_deteccao_automatica_completa(arquivo, aba, linha, mapa):
     r = lp.detectar_tudo((EXEMPLOS / arquivo).read_bytes(), arquivo)
     assert r["aba"] == aba and r["linha_cabecalho"] == linha
     assert tuple(r["mapa"].values()) == mapa
+
+
+@pytest.mark.parametrize("arquivo,linha,total,ano", [
+    ("grade_mensal_secoes.xlsx", 2, 81207.90, 2026),  # título, seções, receitas, subtotais, saldo
+    ("grade_mensal_datas.xlsx", 0, 57076.00, 2025),   # meses salvos como data no cabeçalho
+])
+def test_grade_mensal(arquivo, linha, total, ano):
+    conteudo = (EXEMPLOS / arquivo).read_bytes()
+    r = lp.detectar_tudo(conteudo, arquivo)
+    assert r["formato"] == lp.FORMATO_MENSAL and r["linha_cabecalho"] == linha
+    df = lp.montar_tabela(lp.ler_cru(conteudo, arquivo, r["aba"]), r["linha_cabecalho"], r["formato"], r["ano"])
+    m = r["mapa"]
+    ok, _ = lp.preparar_dados(df, m["data"], m["valor"], m["categoria"], m["descricao"])
+    assert ok["Valor"].sum() == pytest.approx(total)
+    assert ok["Data"].dt.year.unique().tolist() == [ano]
+    assert not ok["Descrição"].str.contains("Total|Salário|SALDO", case=False).any()
+
+
+@pytest.mark.parametrize("titulo,esperado", [
+    ("Janeiro", (1, None)), ("fev/26", (2, 2026)), ("Mar 2025", (3, 2025)), ("01/2026", (1, 2026)),
+    ("2026-12", (12, 2026)), ("Março de 2024", (3, 2024)), ("Descrição", None), ("Total", None),
+])
+def test_interpretar_mes(titulo, esperado):
+    assert lp.interpretar_mes(titulo) == esperado

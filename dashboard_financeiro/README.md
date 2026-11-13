@@ -19,6 +19,7 @@ Para encerrar, feche a janela preta do terminal.
 |---|---|
 | Upload | `.xlsx` (com escolha de aba) e `.csv` (separador `;` `,` tab ou `\|` e codificação detectados) |
 | Detecção automática | Aba, linha do cabeçalho e colunas detectadas por nome **e** por conteúdo; ajuste manual opcional |
+| Grade mensal | Planilhas com itens nas linhas e meses (Jan…Dez) nas colunas são convertidas sozinhas; seções viram categorias e linhas de total/saldo/receitas são ignoradas |
 | Planilhas com título | Linhas de título/vazias no topo são puladas automaticamente |
 | Limpeza de valores | `R$ 1.234,56`, `$1,234.56`, `-50,00`, `(50,00)`, `50,00-`, células vazias; formato BR/US detectado pela coluna inteira |
 | Limpeza de datas | Datas do Excel, números seriais, `dd/mm/aaaa`, `aaaa-mm-dd`, `mm/dd/aaaa`, `15 de março de 2026`, `05/abr/2026` |
