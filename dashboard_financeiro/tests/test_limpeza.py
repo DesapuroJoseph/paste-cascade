@@ -117,3 +117,14 @@ def test_sugestao_pelo_conteudo():
 def test_data_fora_do_intervalo_nao_quebra():
     r = lp.limpar_data(pd.Series(["12,50", "0001-01-01", "9999-12-31", "01/02/2026"]))
     assert r.iloc[:3].isna().all() and r.iloc[3] == pd.Timestamp("2026-02-01")
+
+
+@pytest.mark.parametrize("arquivo,aba,linha,mapa", [
+    ("extrato_banco_br.csv", 0, 0, ("Dt. Lançamento", "Valor (R$)", "Tipo de gasto", "Histórico")),
+    ("controle_gastos_2026.xlsx", "Gastos", 2, ("Quando", "Quanto", "Grupo", "Onde gastei")),
+    ("expenses_us.csv", 0, 0, ("date", "amount", "category", "memo")),
+])
+def test_deteccao_automatica_completa(arquivo, aba, linha, mapa):
+    r = lp.detectar_tudo((EXEMPLOS / arquivo).read_bytes(), arquivo)
+    assert r["aba"] == aba and r["linha_cabecalho"] == linha
+    assert tuple(r["mapa"].values()) == mapa

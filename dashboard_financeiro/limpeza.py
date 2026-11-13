@@ -356,3 +356,87 @@ def preparar_dados(
     descartados = df[motivo != ""].copy()
     descartados.insert(0, "Motivo do descarte", motivo[motivo != ""])
     return validos.sort_values("Data").reset_index(drop=True), descartados
+
+
+# ---------------------------------------------------------------------------
+# Detecção automática completa (aba, linha do cabeçalho e colunas)
+# ---------------------------------------------------------------------------
+
+def _celula_e_dado(x) -> bool:
+    """True se a célula parece um dado (número ou data), e não um título de coluna."""
+    if x is None or (isinstance(x, float) and np.isnan(x)):
+        return False
+    if isinstance(x, (int, float, np.integer, np.floating, pd.Timestamp)) or hasattr(x, "year"):
+        return True
+    t = str(x).strip()
+    if not t:
+        return False
+    s = pd.Series([t])
+    return bool(limpar_valor(s).notna().iloc[0] or limpar_data(s).notna().iloc[0])
+
+
+def detectar_linha_cabecalho(bruto_sem_cabecalho: pd.DataFrame, max_linhas: int = 30) -> int:
+    """Encontra a linha dos títulos: a primeira linha "cheia" só de textos,
+    seguida de uma linha que contém números/datas. Pula títulos e linhas vazias no topo."""
+    topo = bruto_sem_cabecalho.head(max_linhas)
+    if topo.empty:
+        return 0
+    preenchidas = topo.notna().sum(axis=1)
+    largura = preenchidas.max()
+    for pos in range(len(topo) - 1):
+        linha = topo.iloc[pos]
+        celulas = [c for c in linha if not (c is None or (isinstance(c, float) and np.isnan(c))) and str(c).strip()]
+        if len(celulas) < 2 or len(celulas) < 0.6 * largura:
+            continue
+        if any(_celula_e_dado(c) for c in celulas):
+            continue
+        seguinte = topo.iloc[pos + 1]
+        if any(_celula_e_dado(c) for c in seguinte):
+            return pos
+    return 0
+
+
+def _ler_sem_cabecalho(conteudo: bytes, nome: str, aba) -> pd.DataFrame:
+    if nome.lower().endswith((".xlsx", ".xlsm", ".xls")):
+        return pd.read_excel(io.BytesIO(conteudo), sheet_name=aba, header=None, engine="openpyxl", nrows=40)
+    for enc in _ENCODINGS:
+        try:
+            return pd.read_csv(io.BytesIO(conteudo), sep=None, engine="python", encoding=enc,
+                               header=None, dtype=str, nrows=40, skip_blank_lines=False)
+        except (UnicodeDecodeError, pd.errors.ParserError, ValueError):
+            continue
+    return pd.DataFrame()
+
+
+def sugerir_mapeamento(df: pd.DataFrame) -> dict[str, str | None]:
+    colunas = list(df.columns)
+    data = sugerir_coluna(colunas, "data", df=df)
+    valor = sugerir_coluna(colunas, "valor", {data}, df=df)
+    cat = sugerir_coluna(colunas, "categoria", {data, valor}, df=df)
+    desc = sugerir_coluna(colunas, "descricao", {data, valor, cat}, df=df)
+    return {"data": data, "valor": valor, "categoria": cat, "descricao": desc}
+
+
+def detectar_tudo(conteudo: bytes, nome: str) -> dict:
+    """Testa cada aba, acha o cabeçalho e as colunas; fica com a aba que gera mais linhas válidas.
+
+    Retorna {"aba", "linha_cabecalho", "mapa", "linhas_validas"}.
+    """
+    abas = listar_abas(conteudo) if nome.lower().endswith((".xlsx", ".xlsm", ".xls")) else [0]
+    melhor = {"aba": abas[0], "linha_cabecalho": 0, "mapa": {}, "linhas_validas": -1}
+    for aba in abas:
+        try:
+            linha = detectar_linha_cabecalho(_ler_sem_cabecalho(conteudo, nome, aba))
+            df = ler_arquivo(conteudo, nome, aba, linha)
+            if df.empty or len(df.columns) < 2:
+                continue
+            mapa = sugerir_mapeamento(df)
+            validas = 0
+            if mapa["data"] and mapa["valor"]:
+                ok, _ = preparar_dados(df, mapa["data"], mapa["valor"], mapa["categoria"], mapa["descricao"])
+                validas = len(ok)
+        except Exception:
+            continue
+        if validas > melhor["linhas_validas"]:
+            melhor = {"aba": aba, "linha_cabecalho": linha, "mapa": mapa, "linhas_validas": validas}
+    return melhor

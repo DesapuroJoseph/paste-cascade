@@ -8,7 +8,8 @@ Dashboard em **Python + Streamlit + Pandas + Plotly** que funciona com **qualque
 2. Dê **dois cliques em `iniciar_dashboard.bat`**.
    - Na primeira vez ele cria um ambiente isolado (`.venv`) e instala `streamlit`, `pandas`, `plotly` e `openpyxl` — leva 1–2 minutos.
    - Nas próximas vezes só verifica e abre o navegador direto.
-3. Faça upload da planilha e escolha na barra lateral qual coluna é **Data**, **Valor**, **Categoria** e **Descrição**.
+3. Arraste sua planilha para a página. **Pronto** — o dashboard descobre sozinho a aba, a linha dos títulos e quais colunas são Data, Valor, Categoria e Descrição.
+   Se algum número parecer errado, abra o painel **⚙️ Algo errado nos números?** para corrigir manualmente.
 
 Para encerrar, feche a janela preta do terminal.
 
@@ -17,8 +18,8 @@ Para encerrar, feche a janela preta do terminal.
 | Recurso | Detalhes |
 |---|---|
 | Upload | `.xlsx` (com escolha de aba) e `.csv` (separador `;` `,` tab ou `\|` e codificação detectados) |
-| Mapeamento dinâmico | Dropdowns com as colunas do arquivo, pré-selecionados por nome **e** por conteúdo |
-| Planilhas com título | Campo "Linha do cabeçalho" para pular linhas de título no topo |
+| Detecção automática | Aba, linha do cabeçalho e colunas detectadas por nome **e** por conteúdo; ajuste manual opcional |
+| Planilhas com título | Linhas de título/vazias no topo são puladas automaticamente |
 | Limpeza de valores | `R$ 1.234,56`, `$1,234.56`, `-50,00`, `(50,00)`, `50,00-`, células vazias; formato BR/US detectado pela coluna inteira |
 | Limpeza de datas | Datas do Excel, números seriais, `dd/mm/aaaa`, `aaaa-mm-dd`, `mm/dd/aaaa`, `15 de março de 2026`, `05/abr/2026` |
 | Extratos bancários | Se houver valores positivos e negativos, separa entradas de saídas automaticamente |

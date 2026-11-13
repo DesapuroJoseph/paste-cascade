@@ -56,38 +56,66 @@ def carregar(conteudo: bytes, nome: str, aba, linha_cabecalho: int) -> pd.DataFr
     return lp.ler_arquivo(conteudo, nome, aba, linha_cabecalho)
 
 
+
+@st.cache_data(show_spinner="Analisando a planilha…")
+def detectar(conteudo: bytes, nome: str) -> dict:
+    return lp.detectar_tudo(conteudo, nome)
+
+
 # ---------------------------------------------------------------------------
 # 1. Upload
 # ---------------------------------------------------------------------------
 st.title("💰 Dashboard de Análise Financeira")
-st.caption("Envie qualquer planilha de gastos (.xlsx ou .csv) e indique na barra lateral o que cada coluna significa.")
 
-arquivo = st.file_uploader("Arquivo de gastos", type=["xlsx", "xlsm", "csv", "txt"])
+arquivo = st.file_uploader(
+    "Arraste sua planilha de gastos aqui (ou clique em **Browse files**)",
+    type=["xlsx", "xlsm", "csv", "txt"],
+)
 
 if arquivo is None:
     st.info(
-        "👆 Faça upload de um arquivo para começar.\n\n"
-        "O dashboard não depende de nomes de colunas fixos: depois do upload você escolhe, "
-        "na barra lateral, qual coluna é a **Data**, o **Valor**, a **Categoria** e a **Descrição**."
+        "**Como usar:** é só enviar a planilha acima (Excel ou CSV). "
+        "O dashboard descobre sozinho onde estão as datas, os valores e as categorias. "
+        "Não precisa arrumar nem renomear nada."
     )
     st.stop()
 
 conteudo = arquivo.getvalue()
 eh_excel = arquivo.name.lower().endswith((".xlsx", ".xlsm"))
 
-with st.sidebar:
-    st.header("📄 Leitura do arquivo")
+try:
+    auto = detectar(conteudo, arquivo.name)
+except Exception as e:
+    st.error(f"Não consegui abrir este arquivo: {e}")
+    st.stop()
+
+mapa = auto["mapa"]
+deteccao_ok = bool(mapa.get("data") and mapa.get("valor") and auto["linhas_validas"] > 0)
+
+
+def indice(sugestao, opcoes: list) -> int:
+    return opcoes.index(sugestao) if sugestao in opcoes else 0
+
+
+# ---------------------------------------------------------------------------
+# 2. Ajustes manuais — escondidos; só abrem sozinhos se a detecção falhar
+# ---------------------------------------------------------------------------
+resumo_slot = st.empty()
+ajustes = st.expander(
+    "⚙️ Algo errado nos números? Clique aqui para ajustar as colunas" if deteccao_ok
+    else "⚠️ Não consegui identificar as colunas sozinho — indique abaixo",
+    expanded=not deteccao_ok,
+)
+
+with ajustes:
+    c1, c2 = st.columns(2)
     aba = 0
     if eh_excel:
-        try:
-            abas = lp.listar_abas(conteudo)
-        except Exception as e:  # arquivo corrompido / protegido
-            st.error(f"Não consegui abrir o Excel: {e}")
-            st.stop()
-        aba = st.selectbox("Aba da planilha", abas) if len(abas) > 1 else abas[0]
-    linha_cab = st.number_input(
-        "Linha do cabeçalho", min_value=1, max_value=200, value=1,
-        help="Número da linha onde estão os títulos das colunas (use se a planilha tiver um título ou linhas em branco no topo).",
+        abas = lp.listar_abas(conteudo)
+        aba = c1.selectbox("Aba da planilha", abas, index=indice(auto["aba"], abas)) if len(abas) > 1 else abas[0]
+    linha_cab = c2.number_input(
+        "Linha onde estão os títulos das colunas", min_value=1, max_value=200,
+        value=int(auto["linha_cabecalho"]) + 1 if aba == auto["aba"] else 1,
     ) - 1
 
 try:
@@ -97,60 +125,42 @@ except Exception as e:
     st.stop()
 
 if bruto.empty or len(bruto.columns) < 2:
-    st.warning("O arquivo parece vazio ou tem menos de 2 colunas. Verifique a aba e a linha do cabeçalho.")
-    st.dataframe(bruto.head(20), width="stretch")
+    st.warning("Essa aba parece vazia. Escolha outra aba ou outra linha de títulos em ⚙️ acima.")
     st.stop()
 
-# ---------------------------------------------------------------------------
-# 2. Mapeamento dinâmico de colunas
-# ---------------------------------------------------------------------------
 colunas = list(bruto.columns)
+if aba != auto["aba"] or int(linha_cab) != auto["linha_cabecalho"]:
+    mapa = lp.sugerir_mapeamento(bruto)  # usuário mudou a aba/linha: re-detecta
+opcoes_opc = [NENHUMA] + colunas
 
-
-def indice(sugestao: str | None, opcoes: list[str]) -> int:
-    return opcoes.index(sugestao) if sugestao in opcoes else 0
-
-
-with st.sidebar:
-    st.header("🧭 Mapeamento de colunas")
-    sug_data = lp.sugerir_coluna(colunas, "data", df=bruto)
-    sug_valor = lp.sugerir_coluna(colunas, "valor", {sug_data}, df=bruto)
-    sug_cat = lp.sugerir_coluna(colunas, "categoria", {sug_data, sug_valor}, df=bruto)
-    sug_desc = lp.sugerir_coluna(colunas, "descricao", {sug_data, sug_valor, sug_cat}, df=bruto)
-
-    col_data = st.selectbox("Qual coluna é a Data?", colunas, index=indice(sug_data, colunas))
-    col_valor = st.selectbox(
-        "Qual coluna é o Valor Monetário?", colunas,
-        index=indice(sug_valor, colunas) if sug_valor else min(1, len(colunas) - 1),
+with ajustes:
+    c1, c2, c3, c4 = st.columns(4)
+    col_data = c1.selectbox("📅 Data", colunas, index=indice(mapa.get("data"), colunas))
+    col_valor = c2.selectbox(
+        "💵 Valor", colunas,
+        index=indice(mapa.get("valor"), colunas) if mapa.get("valor") else min(1, len(colunas) - 1),
     )
-    opcoes_opc = [NENHUMA] + colunas
-    col_cat = st.selectbox("Qual coluna é a Categoria?", opcoes_opc, index=indice(sug_cat, opcoes_opc))
-    col_desc = st.selectbox("Qual coluna é a Descrição?", opcoes_opc, index=indice(sug_desc, opcoes_opc))
+    col_cat = c3.selectbox("🏷️ Categoria", opcoes_opc, index=indice(mapa.get("categoria"), opcoes_opc))
+    col_desc = c4.selectbox("📝 Descrição", opcoes_opc, index=indice(mapa.get("descricao"), opcoes_opc))
 
-    with st.expander("⚙️ Opções de interpretação"):
-        fmt_label = st.radio(
-            "Formato dos números",
-            ["Automático", "Brasileiro (1.234,56)", "Americano (1,234.56)"],
-        )
-        formato = {"Automático": lp.FORMATO_AUTO, "Brasileiro (1.234,56)": lp.FORMATO_BR}.get(fmt_label, lp.FORMATO_US)
-        data_label = st.radio("Formato das datas", ["Automático", "Dia/Mês/Ano", "Mês/Dia/Ano"])
-        dia_primeiro = {"Automático": None, "Dia/Mês/Ano": True}.get(data_label, False)
-        _amostra = lp.limpar_valor(bruto[col_valor], formato)
-        _misto = (_amostra < 0).any() and (_amostra > 0).any()
-        # Extrato com entradas e saídas: o lado menos frequente costuma ser a receita
-        _idx_sinal = (1 if (_amostra < 0).sum() >= (_amostra > 0).sum() else 2) if _misto else 0
-        regra_sinal = st.radio(
-            "Quais linhas são despesas?",
-            [lp.SINAL_ABSOLUTO, lp.SINAL_NEGATIVOS, lp.SINAL_POSITIVOS],
-            index=_idx_sinal,
-            help="Útil para extratos bancários que misturam entradas e saídas. "
-                 "Quando o arquivo tem valores positivos e negativos, a opção é pré-selecionada automaticamente.",
-        )
-    if _misto:
-        st.caption("ℹ️ A coluna de valor tem positivos e negativos — interpretado como extrato com entradas e saídas.")
+    c1, c2, c3 = st.columns(3)
+    fmt_label = c1.radio("Formato dos números", ["Automático", "Brasileiro (1.234,56)", "Americano (1,234.56)"])
+    formato = {"Automático": lp.FORMATO_AUTO, "Brasileiro (1.234,56)": lp.FORMATO_BR}.get(fmt_label, lp.FORMATO_US)
+    data_label = c2.radio("Formato das datas", ["Automático", "Dia/Mês/Ano", "Mês/Dia/Ano"])
+    dia_primeiro = {"Automático": None, "Dia/Mês/Ano": True}.get(data_label, False)
+    _amostra = lp.limpar_valor(bruto[col_valor], formato)
+    _misto = bool((_amostra < 0).any() and (_amostra > 0).any())
+    # Extrato com entradas e saídas: o lado menos frequente costuma ser a receita
+    _idx_sinal = (1 if (_amostra < 0).sum() >= (_amostra > 0).sum() else 2) if _misto else 0
+    regra_sinal = c3.radio(
+        "Quais linhas são despesas?",
+        [lp.SINAL_ABSOLUTO, lp.SINAL_NEGATIVOS, lp.SINAL_POSITIVOS],
+        index=_idx_sinal,
+        help="Para extratos que misturam entradas e saídas, o dashboard já escolhe sozinho.",
+    )
 
 if col_data == col_valor:
-    st.error("A coluna de **Data** e a de **Valor** precisam ser diferentes. Ajuste o mapeamento na barra lateral.")
+    st.error("A coluna de **Data** e a de **Valor** precisam ser diferentes. Ajuste em ⚙️ acima.")
     st.stop()
 
 dados, descartados = lp.preparar_dados(
@@ -165,13 +175,22 @@ dados, descartados = lp.preparar_dados(
 )
 
 if dados.empty:
-    st.error(
-        "Nenhuma linha válida após a limpeza. Confira se as colunas de Data e Valor estão mapeadas corretamente "
-        "e, se necessário, ajuste o formato dos números/datas nas opções de interpretação."
+    resumo_slot.error(
+        "Não encontrei gastos válidos com as colunas escolhidas. Abra o painel ⚙️ abaixo e indique "
+        "qual coluna tem as **datas** e qual tem os **valores**."
     )
-    with st.expander("Ver amostra do arquivo original"):
+    with st.expander("Ver as primeiras linhas do arquivo"):
         st.dataframe(bruto.head(30), width="stretch")
     st.stop()
+
+_partes = [f"📅 **{col_data}**", f"💵 **{col_valor}**"]
+if col_cat != NENHUMA:
+    _partes.append(f"🏷️ **{col_cat}**")
+if col_desc != NENHUMA:
+    _partes.append(f"📝 **{col_desc}**")
+_extra = " Entradas (valores do lado oposto) foram ignoradas." if _misto and regra_sinal != lp.SINAL_ABSOLUTO else ""
+resumo_slot.success(f"✅ Planilha lida automaticamente: {' · '.join(_partes)}.{_extra}")
+
 
 # ---------------------------------------------------------------------------
 # 3. Filtros
